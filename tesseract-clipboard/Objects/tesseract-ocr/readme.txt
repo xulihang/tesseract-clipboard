@@ -1,0 +1,1 @@
+this is where you put tesseract.exe for windows platform.

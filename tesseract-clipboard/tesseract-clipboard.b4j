@@ -1,0 +1,127 @@
+﻿AppType=JavaFX
+Build1=Default,b4j.example
+File1=main.bjl
+FileGroup1=Default Group
+Group=Default Group
+Library1=jcore
+Library2=jfx
+Library3=jshell
+NumberOfFiles=1
+NumberOfLibraries=3
+NumberOfModules=0
+Version=6.01
+@EndOfDesignText@
+#Region Project Attributes 
+	#MainFormWidth: 600
+	#MainFormHeight: 600 
+#End Region
+
+Sub Process_Globals
+	Private fx As JFX
+	Private MainForm As Form
+	Private Button1 As Button
+	Private ImageView1 As ImageView
+	Private TextArea1 As TextArea
+	Private tesseractInstalled As Boolean
+	Private CheckBox1 As CheckBox
+	Private ComboBox1 As ComboBox
+	Private Label1 As Label
+	Private langmap As Map
+End Sub
+
+Sub AppStart (Form1 As Form, Args() As String)
+	MainForm = Form1
+	MainForm.AlwaysOnTop=True
+	MainForm.RootPane.LoadLayout("main") 'Load the layout file.
+	MainForm.WindowHeight=300
+	MainForm.Show
+	Label1.Visible=False
+	Dim sh As Shell
+	sh.Initialize("sh","tesseract",Null)
+	sh.run(10000)
+
+	langmap.Initialize
+	Dim langlist As List
+	langlist=File.ReadList(File.DirApp,"lang.conf")
+	For i=0 To langlist.Size-1 Step 2
+		langmap.Put(langlist.Get(i),langlist.Get(i+1))
+		ComboBox1.Items.Add(langlist.Get(i))
+	Next
+	ComboBox1.SelectedIndex=0
+End Sub
+
+'Return true to allow the default exceptions handler to handle the uncaught exception.
+Sub Application_Error (Error As Exception, StackTrace As String) As Boolean
+	Return True
+End Sub
+
+Sub Button1_MouseClicked (EventData As MouseEvent)
+	If fx.Clipboard.HasImage Then
+		Try
+			ImageView1.SetImage(fx.Clipboard.GetImage)
+		Catch
+		    fx.Msgbox(MainForm,"出错，请再复制图像一次","")
+			Log(LastException)
+			Return
+		End Try
+		Label1.Text="识别中。。。"
+		MainForm.Title="tesseract-clipboard "&"识别中。。。"
+		Dim out As OutputStream
+		out=File.OpenOutput(File.Combine(File.DirApp,"tesseract-ocr"),"image.png",False)
+		ImageView1.GetImage.WriteToStream(out)
+		out.Close
+		scan
+	Else
+		fx.Msgbox(MainForm,"请先复制图像","")
+	End If
+End Sub
+
+Sub scan
+	Dim args As List
+	args.Initialize
+	args.AddAll(Array As String("image.png","output","-l",langmap.Get(ComboBox1.Value)))
+	Dim sh1 As Shell
+	Log(File.Exists(File.Combine(File.DirApp,"tesseract-ocr"),"tesseract.exe"))
+	If tesseractInstalled Then
+		sh1.Initialize("sh1","tesseract",args)
+    Else
+		sh1.Initialize("sh1",File.Combine(File.Combine(File.DirApp,"tesseract-ocr"),"tesseract"),args)
+	End If 
+	sh1.WorkingDirectory = File.Combine(File.DirApp,"tesseract-ocr")
+	sh1.run(100000)
+End Sub
+
+Sub sh_ProcessCompleted (Success As Boolean, ExitCode As Int, StdOut As String, StdErr As String)
+	If Success And ExitCode = 0 Then
+		Log("Success")
+		Log(StdOut)
+		tesseractInstalled=True
+	Else
+		Log("Error: " & StdErr)
+		tesseractInstalled=False
+	End If
+End Sub
+
+Sub sh1_ProcessCompleted (Success As Boolean, ExitCode As Int, StdOut As String, StdErr As String)
+	If Success And ExitCode = 0 Then
+		Log("Success")
+		Log(StdOut)
+		TextArea1.Text=File.ReadString(File.Combine(File.DirApp,"tesseract-ocr"),"output.txt")
+		fx.Clipboard.SetString(TextArea1.Text)
+		Label1.Text="结果已经复制到剪贴板。"
+		MainForm.Title="tesseract-clipboard "&"结果已经复制到剪贴板。"
+	Else
+		Log("Error: " & StdErr)
+		Label1.Text="识别失败"
+		MainForm.Title="tesseract-clipboard "&"识别失败"
+	End If
+End Sub
+
+Sub CheckBox1_CheckedChange(Checked As Boolean)
+	MainForm.AlwaysOnTop=Checked
+End Sub
+
+Sub ComboBox1_SelectedIndexChanged(Index As Int, Value As Object)
+	Log(Value)
+	Log(langmap.Get(Value))
+End Sub
