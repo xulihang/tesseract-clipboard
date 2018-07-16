@@ -3,7 +3,7 @@ tesseract-clipboard
 
 ![](https://github.com/xulihang/tesseract-clipboard/raw/master/demo.gif)
 
-This program will convert images stored in clipboard to texts using [tesseract ocr engine](https://github.com/tesseract-ocr/tesseract).
+This program will convert images stored in the clipboard to texts using [tesseract ocr engine](https://github.com/tesseract-ocr/tesseract).
 
 It is written in b4j and tesseract is open sourced, thus it is cross-platform.
 
@@ -24,3 +24,15 @@ Else
     sh1.Initialize("sh1",File.Combine(File.Combine(File.DirApp,"tesseract-ocr"),"tesseract"),args)
 End If 
 ```
+
+How to capture screen
+----------------------
+
+We can use operating systems' built-in screencapture shortcuts to get images into the clipboard. 
+
+Windows 10: win+shift+s
+
+macOS: Command+shift+4
+
+Linux: I know gnome3 has this setting
+
