@@ -6,8 +6,9 @@ Group=Default Group
 Library1=jcore
 Library2=jfx
 Library3=jshell
+Library4=apachestringutilsb4j
 NumberOfFiles=1
-NumberOfLibraries=3
+NumberOfLibraries=4
 NumberOfModules=0
 Version=6.01
 @EndOfDesignText@
@@ -27,6 +28,7 @@ Sub Process_Globals
 	Private ComboBox1 As ComboBox
 	Private Label1 As Label
 	Private langmap As Map
+	Private Button2 As Button
 End Sub
 
 Sub AppStart (Form1 As Form, Args() As String)
@@ -124,4 +126,42 @@ End Sub
 Sub ComboBox1_SelectedIndexChanged(Index As Int, Value As Object)
 	Log(Value)
 	Log(langmap.Get(Value))
+End Sub
+
+Sub Button2_MouseClicked (EventData As MouseEvent)
+	Dim su As ApacheSU
+	Dim result As String
+	Dim list1 As List
+	list1.Initialize
+	list1.AddAll(su.SplitWithSeparator(TextArea1.Text,CRLF))
+	Log(list1)
+	For Each line As String In list1
+		Log(line)
+		If line="" Or line=" " Then
+			Continue
+		End If
+		If isSentenceEnd(line)=False Then
+			result=result&" "&line
+		Else
+			result=result&" "&line&CRLF
+		End If
+	Next
+
+	Dim list2 As List
+	list2.Initialize
+	list2.AddAll(su.SplitWithSeparator(result,CRLF))
+	result=""
+	For Each line As String In list2
+		result=result&line.Trim&CRLF&CRLF
+	Next
+	TextArea1.Text=result
+	fx.Clipboard.SetString(TextArea1.Text)
+End Sub
+
+Sub isSentenceEnd(line As String) As Boolean
+	If line.EndsWith(".") Or line.EndsWith("!") Or line.EndsWith("?") Or line.EndsWith(";") Or line.EndsWith(Chr(34)) Then
+		Return True
+	Else
+		Return False
+	End If
 End Sub
