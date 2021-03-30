@@ -34,5 +34,5 @@ Windows 10: win+shift+s
 
 macOS: Command+shift+4
 
-Linux: Ctrl+Shift+PrntScrn (If may differ based on different desktop environments)
+Linux: Ctrl+Shift+PrntScrn (It may differ based on different desktop environments)
 
