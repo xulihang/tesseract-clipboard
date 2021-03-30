@@ -34,5 +34,5 @@ Windows 10: win+shift+s
 
 macOS: Command+shift+4
 
-Linux: I know gnome3 has this setting
+Linux: Ctrl+Shift+PrntScrn (It may differ based on different desktop environments)
 
